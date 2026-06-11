@@ -1,0 +1,70 @@
+		PostgreSQL — "la mémoire du projet"
+C'est une base de données relationnelle. Elle stocke toutes les données sous forme de tableaux (comme Excel mais en professionnel).
+Dans ThreatShield, elle contient 5 tables :
+users          → qui se connecte
+analyses       → chaque scan effectué
+résultats      → le verdict (bénin/malveillant + score)
+IOC/threats    → base de connaissance des menaces
+logs           → tout ce qui se passe sur l'appli
+Ce que tu dis au recruteur : "J'utilise PostgreSQL pour persister les résultats d'analyse et l'historique des scans. Je définis les tables via SQLAlchemy(SQLAlchemy — le traducteur Python ↔ PostgreSQL) (ORM Python) ce qui m'évite d'écrire du SQL brut et me protège des injections SQL."
+
+
+********
+	FastAPI — "le cerveau du projet"
+C'est le serveur backend en Python. Il reçoit les requêtes, fait le travail, et renvoie une réponse JSON.
+Le cycle d'une requête :
+Navigateur                FastAPI                  PostgreSQL
+    │                        │                          │
+    │── POST /api/scan/url ──▶│                          │
+    │   { url: "example.com" }│                          │
+    │                        │── vérifie le token JWT   │
+    │                        │── appelle VirusTotal API  │
+    │                        │── calcule le score ML     │
+    │                        │── INSERT résultat ───────▶│
+    │◀── { score: 87,         │◀─ OK ────────────────────│
+    │     verdict: "danger" } │
+Ce que tu dis au recruteur : "FastAPI gère toute la logique métier : authentification JWT, validation des données avec Pydantic(Sans Pydantic, ton serveur plante ou stocke des données corrompues), appels aux APIs externes (VirusTotal, AbuseIPDB), et communication avec la base de données. Je l'ai choisi pour sa performance (asynchrone natif:faire plusieurs choses en même temps) et sa documentation automatique via Swagger."
+
+
+***********
+	React — "le visage du projet"
+C'est le frontend : ce que l'utilisateur voit et clique dans son navigateur. React découpe l'interface en composants réutilisables.
+
+Quand tu cliques "Scanner", React appelle FastAPI, reçoit le JSON, et met à jour l'affichage sans recharger la page.
+Ce que tu dis au recruteur : "Le frontend React communique avec le backend via Axios. J'utilise React Query pour gérer le cache des données et éviter des appels inutiles à l'API. La séparation frontend/backend me permet de les déployer indépendamment."
+*****************************
+Pourquoi sans recharger la page ?
+Avant React (sites classiques) :
+Clic → navigateur redemande TOUTE la page au serveur → page blanche → rechargement
+= lent, mauvaise expérience
+Avec React :
+Clic → Axios appelle juste /api/scan/url → reçoit { score: 87 }
+     → React met à jour UNIQUEMENT la carte résultat
+     → le reste de la page (navbar, menu...) ne bouge pas
+= instantané, comme une app mobile
+C'est ce qu'on appelle une SPA (Single Page Application) — la page se charge une seule fois, ensuite React manipule le DOM directement sans repasser par le serveur pour l'HTML.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
