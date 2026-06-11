@@ -44,31 +44,16 @@ Clic → Axios appelle juste /api/scan/url → reçoit { score: 87 }
 = instantané, comme une app mobile
 C'est ce qu'on appelle une SPA (Single Page Application) — la page se charge une seule fois, ensuite React manipule le DOM directement sans repasser par le serveur pour l'HTML.
 *************************************
+ 
 
 
-ata page checksums are disabled.
+*************
+uvicorn app.main:app --reload --port 8001
 
-fixing permissions on existing directory /var/lib/postgresql/16/main ... ok
-creating subdirectories ... ok
-selecting dynamic shared memory implementation ... posix
-selecting default max_connections ... 100
-selecting default shared_buffers ... 128MB
-selecting default time zone ... Africa/Casablanca
-creating configuration files ... ok
-running bootstrap script ... ok
-performing post-bootstrap initialization ... ok
-syncing data to disk ... ok
-Setting up postgresql-contrib (16+257build1.1) ...
-Setting up postgresql (16+257build1.1) ...
-Processing triggers for man-db (2.12.0-4build2) ...
-Processing triggers for libc-bin (2.39-0ubuntu8.7) ...
-CREATE ROLE
-CREATE DATABASE
-(venv) khawla@khawla-ThinkPad-X240:~/threatshield-ai$ cd ~/threatshield-ai/backend
-uvicorn app.main:app --reload
-INFO:     Will watch for changes in these directories: ['/home/khawla/threatshield-ai/backend']
-ERROR:    [Errno 98] Address already in use
-(venv) khawla@khawla-ThinkPad-X240:~
+Ouvre ton navigateur et teste ces 2 URLs :
+
+http://localhost:8001/ → doit afficher {"message": "ThreatShield AI is running 🛡️"}
+http://localhost:8001/docs → la documentation Swagger interactive  
 
 
 
