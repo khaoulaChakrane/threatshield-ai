@@ -54,6 +54,7 @@ Ouvre ton navigateur et teste ces 2 URLs :
 
 http://localhost:8001/ → doit afficher {"message": "ThreatShield AI is running 🛡️"}
 http://localhost:8001/docs → la documentation Swagger interactive  
+resume
 
 
 
