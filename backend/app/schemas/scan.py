@@ -14,3 +14,6 @@ class ScanResultResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
+class IPScanRequest(BaseModel):
+        ip: str

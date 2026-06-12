@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import Base, engine
 from app.api.history import router as history_router
+from app.api.scan_ip import router as scan_ip_router    
+
 
 from app.models.user import User
 from app.models.scan_result import ScanResult
@@ -28,6 +30,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(scan_url_router)
 app.include_router(history_router)
+app.include_router(scan_ip_router) 
 
 @app.get("/")
 def root():
