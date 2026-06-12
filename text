@@ -56,7 +56,31 @@ http://localhost:8001/ → doit afficher {"message": "ThreatShield AI is running
 http://localhost:8001/docs → la documentation Swagger interactive  
 resume
 
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzgxMjcwMjkyfQ.10OWLfsOXs6RuxLja9y25gJYqPvjTUp76bwMAmEhh5g
 
+**********************
+┌─────────────────────────────────────────────────────┐
+│  SCHEMA (Pydantic) = le menu / bon de commande       │
+│  → Définit la FORME des données qui entrent/sortent │
+│  → "Le client doit donner: nom plat + quantité"      │
+│  → Validation uniquement, AUCUNE logique             │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  SERVICE = le cuisinier                              │
+│  → Contient la LOGIQUE / le travail réel             │
+│  → "Comment on cuisine le plat" (appelle VirusTotal, │
+│     calcule le score...)                             │
+│  → Ne touche PAS à la base de données directement    │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  MODEL (SQLAlchemy) = l'étagère de stockage          │
+│  → Définit la STRUCTURE d'une table en base de       │
+│    données (colonnes, types)                         │
+│  → "Voici à quoi ressemble une ligne dans la table   │
+│     scan_results"                                    │
+└─────────────────────────────────────────────────────┘
 
 
 
