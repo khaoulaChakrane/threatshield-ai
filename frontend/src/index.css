@@ -129,3 +129,16 @@ body {
   color: var(--accent);
   text-decoration: none;
 }
+
+
+
+
+.auth-success {
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid var(--success);
+  color: var(--success);
+  padding: 0.6rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
