@@ -18,4 +18,14 @@ export async function getHistory() {
   return res.data;
 }
 
+export async function scanUrl(url) {
+  const res = await api.post("/scan/url", { url });
+  return res.data;
+}
+
+export async function scanIp(ip) {
+  const res = await api.post("/scan/ip", { ip });
+  return res.data;
+}
+
 export default api;

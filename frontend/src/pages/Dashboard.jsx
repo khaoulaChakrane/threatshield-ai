@@ -107,22 +107,22 @@ export default function Dashboard() {
 
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon">🔍</div>
+          <div className="stat-icon"> </div>
           <div className="stat-value">{total}</div>
           <div className="stat-label">Scans totaux</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">⚠️</div>
+          <div className="stat-icon"></div>
           <div className="stat-value danger">{malicious}</div>
           <div className="stat-label">Menaces détectées</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">✅</div>
+          <div className="stat-icon"></div>
           <div className="stat-value">{benign}</div>
           <div className="stat-label">Bénins</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">📊</div>
+          <div className="stat-icon"> </div>
           <div className="stat-value">
             {total > 0 ? Math.round((malicious / total) * 100) : 0}%
           </div>
