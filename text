@@ -45,10 +45,16 @@ Clic → Axios appelle juste /api/scan/url → reçoit { score: 87 }
 C'est ce qu'on appelle une SPA (Single Page Application) — la page se charge une seule fois, ensuite React manipule le DOM directement sans repasser par le serveur pour l'HTML.
 *************************************
  
-
+ 
 
 *************
 uvicorn app.main:app --reload --port 8001
+
+ npm run dev
+cd ~/threatshield-ai/backend
+source ~/threatshield-ai/venv/bin/activate
+uvicorn app.main:app --reload --port 8001
+
 
 Ouvre ton navigateur et teste ces 2 URLs :
 
@@ -57,6 +63,9 @@ http://localhost:8001/docs → la documentation Swagger interactive
 resume
 
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzgxMjcwMjkyfQ.10OWLfsOXs6RuxLja9y25gJYqPvjTUp76bwMAmEhh5g
+
+
+d13f0647a0efdd5d9412b0a15abe6e3e9ab4cf2d1453a6ea6db1cbf735769deff95c3c78714c7ec7
 
 **********************
 ┌─────────────────────────────────────────────────────┐
@@ -83,13 +92,79 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzgxMjcwMjkyfQ.10OW
 └─────────────────────────────────────────────────────┘
 
 
+git add .
+git commit -m "add scan ip"
+git push
 
 
 
+*************************************************************
+1. La Protection des Données au Repos (Data at Rest)
+Ce qu'il faut réviser :
+Pourquoi protéger ? Pour éviter la divulgation d'informations, garantir l'intégrité des données, et empêcher la suppression accidentelle ou malveillante (image_e0cab7.png). C'est une couche de défense en profondeur essentielle si le système est compromis (image_e0cab7.png).
+
+Par défaut sur S3 : Les données stockées dans Amazon S3 sont privées par défaut et nécessitent des identifiants AWS pour y accéder (Screenshot from 2026-06-13 13-09-09.png, image_e0c67c.png).
+
+Mécanismes de contrôle d'accès : S3 s'appuie sur deux types de contrôle (image_e0c67c.png) :
+
+Identity-based (IAM users/roles).
+
+Resource-based (Bucket Policies, ACLs).
+
+💡 Le réflexe en entretien :
+Si on vous demande "Comment sécurisez-vous un bucket S3 contenant des données sensibles ?", ne dites pas juste "Je l'encrypte". Répondez en combinant le principe du moindre privilège (via les Bucket Policies pour un contrôle granulaire) et le chiffrement systématique (Screenshot from 2026-06-13 13-09-09.png).
+**
 
 
+2. Stratégies de Chiffrement : Client-Side vs Server-Side
+C'est une question classique d'entretien pour tester votre compréhension de la gestion des clés de chiffrement.
 
 
+Concept,Client-Side Encryption (CSE),Server-Side Encryption (SSE)
+Principe,"L'application chiffre la donnée avant de l'envoyer à AWS (image_e0c25a.png, image_e05d20.png).","AWS chiffre la donnée pour vous après réception (image_e0c25a.png, image_e05d20.png)."
+Visibilité,Le processus est géré de votre côté ; les clés et algorithmes ne sont connus que de vous (image_e0c25a.png).,Le processus est totalement transparent pour l'utilisateur (image_e0c25a.png).
+***
+Les 3 types de SSE à connaître absolument (image_e05d20.png) :
+SSE-C : Chiffrement avec des clés fournies par le client.
+
+SSE-S3 : Chiffrement avec des clés gérées entièrement par Amazon S3.
+
+SSE-KMS : Chiffrement utilisant AWS KMS (Key Management Service), qui offre un contrôle strict et un audit sur l'utilisation des clés (image_e05d20.png).
+
+💡 Le réflexe en entretien :
+On vous demandera souvent : "Dans quel cas utilisez-vous le CSE plutôt que le SSE ?".
+
+Réponse : "Le CSE est indispensable lorsque des contraintes réglementaires ou de conformité strictes interdisent formellement à un tiers (même un fournisseur cloud comme AWS) d'avoir la moindre visibilité ou possession des clés de chiffrement."
+**
+3. Sécurité Avancée de S3 (Gouvernance et Anti-Ransomware)
+Les recruteurs adorent poser des scénarios de type : "Un administrateur s'est fait pirater son compte et le hacker veut supprimer toutes nos sauvegardes S3. Comment l'en empêcher ?"
+
+S3 Block Public Access : Une sécurité globale indispensable qui comporte 4 options clés pour bloquer les accès publics accordés via de nouvelles/anciennes ACLs ou Bucket Policies (image_e0c600.png).
+
+S3 Versioning : Crée une nouvelle version à chaque upload et protège contre les suppressions accidentelles (Screenshot from 2026-06-13 13-12-23.png). Une fois activé, il ne peut pas être désactivé (uniquement suspendu) (Screenshot from 2026-06-13 13-12-23.png).
+
+Option choc pour l'entretien : Mentionnez l'activation de l'MFA Delete (exiger une authentification multifacteur pour valider une suppression définitive) (Screenshot from 2026-06-13 13-12-23.png).
+
+S3 Object Lock (Modèle WORM) : Write Once, Read Many. Empêche la suppression ou la modification d'un objet pendant une période définie (Screenshot from 2026-06-13 13-13-58.png). Fonctionne uniquement si le Versioning est activé (Screenshot from 2026-06-13 13-13-58.png). Il existe deux modes (Screenshot from 2026-06-13 13-13-58.png) :
+
+Governance mode : Certains utilisateurs privilégiés (avec des permissions spécifiques) peuvent passer outre la protection.
+
+Compliance mode : Personne, pas même l'utilisateur racine (root account), ne peut supprimer l'objet avant la fin de la période de rétention. C'est l'arme absolue contre les ransomwares.
+****
+4. La Protection des Données en Transit (Data in Transit)
+Ce qu'il faut réviser :
+Protocoles : Utilisation systématique de points de terminaison SSL/TLS (HTTPS) (Screenshot from 2026-06-13 13-23-23.png, Screenshot from 2026-06-13 13-24-57.png).
+
+VPC Endpoints : Pour éviter que le flux de données ne transite par l'Internet public. Les VPC Endpoints permettent de limiter et de sécuriser l'accès à vos buckets S3 directement depuis votre réseau privé AWS (Screenshot from 2026-06-13 13-23-23.png, Screenshot from 2026-06-13 13-24-57.png).
+
+Gestion des Certificats :
+
+ACM (AWS Certificate Manager) : Gère la création, le déploiement et le renouvellement automatique des certificats SSL/TLS publics pour les applications web (Screenshot from 2026-06-13 13-24-57.png).
+
+ACM Private CA : Permet de gérer centralement le cycle de vie de vos certificats privés de manière hautement disponible pour l'architecture interne (Screenshot from 2026-06-13 13-24-57.png).
+
+💡 Le réflexe en entretien :
+Montrez que vous maîtrisez la sécurité réseau : "Pour garantir qu'aucune donnée ne sorte sur Internet lors des échanges entre mes instances EC2 et mon bucket S3, je déploie un VPC Gateway Endpoint et j'applique une policy qui rejette toute requête n'émanant pas de ce endpoint spécifique."
 
 
 

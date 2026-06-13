@@ -33,7 +33,7 @@ export default function Register() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-logo">THREATSHIELD AI</div>
+        <div className="auth-logo">ThreatShield<span className="dot">.</span></div>
         <div className="auth-subtitle">Créer un compte</div>
 
         {error && <div className="auth-error">{error}</div>}

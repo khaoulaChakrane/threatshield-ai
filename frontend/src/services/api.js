@@ -13,4 +13,9 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export async function getHistory() {
+  const res = await api.get("/history/");
+  return res.data;
+}
+
 export default api;
