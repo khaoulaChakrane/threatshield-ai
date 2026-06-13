@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Layout from "../components/Layout";
-import { scanUrl, scanIp } from "../services/api";
+import { scanUrl, scanIp, scanDomain } from "../services/api";
 
 export default function Scanner() {
   const [scanType, setScanType] = useState("url");
@@ -9,6 +9,20 @@ export default function Scanner() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const handlers = { url: scanUrl, ip: scanIp, domain: scanDomain };
+
+  const labels = {
+    url: "URL à analyser",
+    ip: "Adresse IP à analyser",
+    domain: "Domaine à analyser",
+  };
+
+  const placeholders = {
+    url: "https://example.com",
+    ip: "118.25.6.39",
+    domain: "example.com",
+  };
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -16,7 +30,7 @@ export default function Scanner() {
     setLoading(true);
 
     try {
-      const data = scanType === "url" ? await scanUrl(target) : await scanIp(target);
+      const data = await handlers[scanType](target);
       setResult(data);
     } catch (err) {
       setError("Erreur lors de l'analyse. Vérifie le format et réessaie.");
@@ -28,7 +42,7 @@ export default function Scanner() {
   return (
     <Layout>
       <div className="page-title">Scanner</div>
-      <div className="page-subtitle">Analyser une URL ou une adresse IP</div>
+      <div className="page-subtitle">Analyser une URL, une IP ou un domaine</div>
 
       <div className="chart-card" style={{ maxWidth: "560px" }}>
         <form onSubmit={handleSubmit}>
@@ -49,16 +63,23 @@ export default function Scanner() {
               >
                 Adresse IP
               </button>
+              <button
+                type="button"
+                className={`toggle-btn ${scanType === "domain" ? "active" : ""}`}
+                onClick={() => setScanType("domain")}
+              >
+                Domaine
+              </button>
             </div>
           </div>
 
           <div className="form-group">
-            <label>{scanType === "url" ? "URL à analyser" : "Adresse IP à analyser"}</label>
+            <label>{labels[scanType]}</label>
             <input
               type="text"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
-              placeholder={scanType === "url" ? "https://example.com" : "118.25.6.39"}
+              placeholder={placeholders[scanType]}
               required
             />
           </div>
@@ -69,7 +90,11 @@ export default function Scanner() {
         </form>
       </div>
 
-      {error && <div className="auth-error" style={{ maxWidth: "560px", marginTop: "1rem" }}>{error}</div>}
+      {error && (
+        <div className="auth-error" style={{ maxWidth: "560px", marginTop: "1rem" }}>
+          {error}
+        </div>
+      )}
 
       {result && (
         <div className="scan-result" style={{ maxWidth: "560px" }}>

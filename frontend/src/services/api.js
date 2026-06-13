@@ -28,4 +28,9 @@ export async function scanIp(ip) {
   return res.data;
 }
 
+export async function scanDomain(domain) {
+  const res = await api.post("/scan/domain", { domain });
+  return res.data;
+}
+
 export default api;

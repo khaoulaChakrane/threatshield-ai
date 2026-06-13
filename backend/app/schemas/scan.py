@@ -17,3 +17,6 @@ class ScanResultResponse(BaseModel):
         
 class IPScanRequest(BaseModel):
         ip: str
+
+class DomainScanRequest(BaseModel):
+        domain: str
