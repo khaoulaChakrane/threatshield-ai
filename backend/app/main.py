@@ -7,7 +7,7 @@ from app.api.scan_domain import router as scan_domain_router
 from app.api.scan_file import router as scan_file_router    
 from app.models.user import User
 from app.models.scan_result import ScanResult
-
+from app.api.scan_email import router as scan_email_router
 from app.api.auth import router as auth_router
 from app.api.scan_url import router as scan_url_router
 
@@ -32,7 +32,8 @@ app.include_router(scan_url_router)
 app.include_router(history_router)
 app.include_router(scan_ip_router) 
 app.include_router(scan_domain_router)    
-app.include_router(scan_file_router)                        
+app.include_router(scan_file_router)    
+app.include_router(scan_email_router)                     
 
 @app.get("/")
 def root():

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Layout from "../components/Layout";
-import { scanUrl, scanIp, scanDomain, scanFile } from "../services/api";
+import { scanUrl, scanIp, scanDomain, scanFile, scanEmail } from "../services/api";
 
 export default function Scanner() {
   const [scanType, setScanType] = useState("url");
@@ -15,6 +15,7 @@ export default function Scanner() {
     ip: "Adresse IP à analyser",
     domain: "Domaine à analyser",
     file: "Fichier à analyser",
+    email: "Email (.eml) à analyser",
   };
 
   const placeholders = {
@@ -22,6 +23,14 @@ export default function Scanner() {
     ip: "118.25.6.39",
     domain: "example.com",
   };
+
+  const types = [
+    { key: "url", label: "URL" },
+    { key: "ip", label: "Adresse IP" },
+    { key: "domain", label: "Domaine" },
+    { key: "file", label: "Fichier" },
+    { key: "email", label: "Email" },
+  ];
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -31,16 +40,26 @@ export default function Scanner() {
 
     try {
       let data;
-      if (scanType === "url") data = await scanUrl(target);
-      else if (scanType === "ip") data = await scanIp(target);
-      else if (scanType === "domain") data = await scanDomain(target);
-      else if (scanType === "file") {
+      if (scanType === "url") {
+        data = await scanUrl(target);
+      } else if (scanType === "ip") {
+        data = await scanIp(target);
+      } else if (scanType === "domain") {
+        data = await scanDomain(target);
+      } else if (scanType === "file") {
         if (!file) {
           setError("Sélectionne un fichier d'abord");
           setLoading(false);
           return;
         }
         data = await scanFile(file);
+      } else if (scanType === "email") {
+        if (!file) {
+          setError("Sélectionne un fichier .eml d'abord");
+          setLoading(false);
+          return;
+        }
+        data = await scanEmail(file);
       }
       setResult(data);
     } catch (err) {
@@ -50,17 +69,12 @@ export default function Scanner() {
     }
   }
 
-  const types = [
-    { key: "url", label: "URL" },
-    { key: "ip", label: "Adresse IP" },
-    { key: "domain", label: "Domaine" },
-    { key: "file", label: "Fichier" },
-  ];
+  const isFileInput = scanType === "file" || scanType === "email";
 
   return (
     <Layout>
       <div className="page-title">Scanner</div>
-      <div className="page-subtitle">Analyser une URL, une IP, un domaine ou un fichier</div>
+      <div className="page-subtitle">Analyser une URL, une IP, un domaine, un fichier ou un email</div>
 
       <div className="chart-card" style={{ maxWidth: "560px" }}>
         <form onSubmit={handleSubmit}>
@@ -72,7 +86,11 @@ export default function Scanner() {
                   key={t.key}
                   type="button"
                   className={`toggle-btn ${scanType === t.key ? "active" : ""}`}
-                  onClick={() => setScanType(t.key)}
+                  onClick={() => {
+                    setScanType(t.key);
+                    setResult(null);
+                    setError("");
+                  }}
                 >
                   {t.label}
                 </button>
@@ -82,9 +100,10 @@ export default function Scanner() {
 
           <div className="form-group">
             <label>{labels[scanType]}</label>
-            {scanType === "file" ? (
+            {isFileInput ? (
               <input
                 type="file"
+                accept={scanType === "email" ? ".eml" : undefined}
                 onChange={(e) => setFile(e.target.files[0])}
                 required
               />

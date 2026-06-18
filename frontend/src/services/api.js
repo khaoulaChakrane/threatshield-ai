@@ -43,4 +43,15 @@ export async function scanFile(file) {
   return res.data;
 }
 
+export async function scanEmail(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await api.post("/scan/email", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
+ 
 export default api;
