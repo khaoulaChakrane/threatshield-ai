@@ -1,20 +1,20 @@
 import { useState } from "react";
 import Layout from "../components/Layout";
-import { scanUrl, scanIp, scanDomain } from "../services/api";
+import { scanUrl, scanIp, scanDomain, scanFile } from "../services/api";
 
 export default function Scanner() {
   const [scanType, setScanType] = useState("url");
   const [target, setTarget] = useState("");
+  const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const handlers = { url: scanUrl, ip: scanIp, domain: scanDomain };
 
   const labels = {
     url: "URL à analyser",
     ip: "Adresse IP à analyser",
     domain: "Domaine à analyser",
+    file: "Fichier à analyser",
   };
 
   const placeholders = {
@@ -30,7 +30,18 @@ export default function Scanner() {
     setLoading(true);
 
     try {
-      const data = await handlers[scanType](target);
+      let data;
+      if (scanType === "url") data = await scanUrl(target);
+      else if (scanType === "ip") data = await scanIp(target);
+      else if (scanType === "domain") data = await scanDomain(target);
+      else if (scanType === "file") {
+        if (!file) {
+          setError("Sélectionne un fichier d'abord");
+          setLoading(false);
+          return;
+        }
+        data = await scanFile(file);
+      }
       setResult(data);
     } catch (err) {
       setError("Erreur lors de l'analyse. Vérifie le format et réessaie.");
@@ -39,49 +50,53 @@ export default function Scanner() {
     }
   }
 
+  const types = [
+    { key: "url", label: "URL" },
+    { key: "ip", label: "Adresse IP" },
+    { key: "domain", label: "Domaine" },
+    { key: "file", label: "Fichier" },
+  ];
+
   return (
     <Layout>
       <div className="page-title">Scanner</div>
-      <div className="page-subtitle">Analyser une URL, une IP ou un domaine</div>
+      <div className="page-subtitle">Analyser une URL, une IP, un domaine ou un fichier</div>
 
       <div className="chart-card" style={{ maxWidth: "560px" }}>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Type de cible</label>
             <div className="scan-type-toggle">
-              <button
-                type="button"
-                className={`toggle-btn ${scanType === "url" ? "active" : ""}`}
-                onClick={() => setScanType("url")}
-              >
-                URL
-              </button>
-              <button
-                type="button"
-                className={`toggle-btn ${scanType === "ip" ? "active" : ""}`}
-                onClick={() => setScanType("ip")}
-              >
-                Adresse IP
-              </button>
-              <button
-                type="button"
-                className={`toggle-btn ${scanType === "domain" ? "active" : ""}`}
-                onClick={() => setScanType("domain")}
-              >
-                Domaine
-              </button>
+              {types.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  className={`toggle-btn ${scanType === t.key ? "active" : ""}`}
+                  onClick={() => setScanType(t.key)}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
           </div>
 
           <div className="form-group">
             <label>{labels[scanType]}</label>
-            <input
-              type="text"
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              placeholder={placeholders[scanType]}
-              required
-            />
+            {scanType === "file" ? (
+              <input
+                type="file"
+                onChange={(e) => setFile(e.target.files[0])}
+                required
+              />
+            ) : (
+              <input
+                type="text"
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                placeholder={placeholders[scanType]}
+                required
+              />
+            )}
           </div>
 
           <button className="btn-primary" type="submit" disabled={loading}>

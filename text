@@ -165,6 +165,63 @@ ACM Private CA : Permet de gérer centralement le cycle de vie de vos certificat
 
 💡 Le réflexe en entretien :
 Montrez que vous maîtrisez la sécurité réseau : "Pour garantir qu'aucune donnée ne sorte sur Internet lors des échanges entre mes instances EC2 et mon bucket S3, je déploie un VPC Gateway Endpoint et j'applique une policy qui rejette toute requête n'émanant pas de ce endpoint spécifique."
+*********************************
+1. La distinction fondamentale (Le "Qui" vs le "Comment")
+C'est la question piège classique en entretien : « Quelle est la différence entre CloudTrail et CloudWatch ? » Vous devez y répondre avec une formule percutante :
+
+AWS CloudTrail (La traçabilité / Audit) : Répond aux questions Qui a fait Quoi, Quand et depuis Où. Il enregistre toutes les actions des utilisateurs, des rôles et des services sous forme d'événements (appels d'API). C'est l'outil indispensable pour la gouvernance, la conformité et l'analyse post-incident (forensics).
+
+Amazon CloudWatch (L'observabilité / Performance) : Mesure la performance et la santé opérationnelle des ressources et des applications. Il collecte des métriques, supervise les journaux d'application et déclenche des alertes (Alarms) en cas de comportement anormal.
+**************
+2. Savoir lire et analyser un Log (Aptitude Technique)
+Un recruteur peut vous montrer un extrait de log JSON (comme dans vos captures) et vous demander de l'interpréter. Vous devez savoir repérer immédiatement les blocs clés :
+
+L'identité de l'appelant (userIdentity) : Repérez le type (ex: IAMUser), l'ARN (arn:aws:iam::...), et le userName (ex: "Jane"). Cela montre que vous savez identifier précisément l'acteur.
+
+L'action et l'impact (requestParameters et responseElements) :
+
+Dans Screenshot from 2026-06-13 14-32-37.png, on voit une requête ciblant une instance EC2 spécifique (instanceId: "i-ebeaf9e2").
+
+La réponse montre un changement d'état : previousState était running et le currentState devient stopping.
+
+En entretien : Vous devez être capable de dire : « Ce log montre que l'utilisateur Jane a volontairement (ou par erreur) arrêté l'instance EC2 spécifiée à un instant T. »
+**********
+3. Les Logs natifs par composants (Cas d'usage)
+Montrez que vous connaissez les sources de données spécifiques selon le périmètre de sécurité concerné :
+
+Réseau (Amazon VPC Flow Logs) : Capture le trafic IP entrant et sortant au niveau des interfaces réseau, des subnets ou du VPC complet. Argument fort : Précisez que ces logs sont collectés en dehors du chemin réseau classique, ce qui signifie qu'ils n'ont aucun impact sur la latence ou le débit de l'infrastructure.
+
+Stockage (Amazon S3 Server Access Logs) : Fournit des enregistrements détaillés de toutes les requêtes d'accès aux buckets S3. Essentiel pour auditer les fuites de données ou comprendre l'évolution de la facturation S3.
+
+Application / Distribution (ELB Access Logs) : Enregistre en détail les requêtes envoyées aux Load Balancers. Utile pour analyser les schémas de trafic (Traffic patterns) et diagnostiquer des erreurs applicatives (ex: erreurs 5xx). Les logs y sont compressés et stockés directement dans S3.
+
+4. L'écosystème global de Supervision
+Si on vous demande comment mettre en place une stratégie de monitoring complète pour anticiper les pannes ou les attaques, vous devez structurer votre réponse autour de ces 4 piliers AWS :
+
+CloudTrail pour l'audit des actions de l'infrastructure.
+
+CloudWatch pour le suivi des métriques de performance et des seuils d'alerte.
+
+Amazon EventBridge pour orchestrer des réponses automatiques aux événements (ex: isoler automatiquement une instance compromise).
+
+AWS X-Ray pour le traçage des requêtes de bout en bout dans les architectures distribuées ou micro-services afin d'identifier les goulets d'étranglement.
+
+💡 Conseils pour l'entretien :
+Parlez en termes de "Postures de Sécurité" : Ne dites pas juste "je regarde les logs". Dites : "J'utilise les logs de manière proactive pour détecter les comportements anomaux avant qu'ils n'impactent la production, et de manière réactive pour mener des investigations numériques (forensics)."
+
+Centralisation : Mentionnez toujours que la bonne pratique consiste à centraliser tous ces logs (VPC, ELB, S3, CloudTrail) dans un bucket S3 sécurisé et dédié (souvent dans un compte AWS de sécurité distinct), pour éviter qu'un attaquant ayant compromis un serveur puisse effacer ses traces.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -33,4 +33,14 @@ export async function scanDomain(domain) {
   return res.data;
 }
 
+export async function scanFile(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await api.post("/scan/file", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
+
 export default api;
