@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 class URLScanRequest(BaseModel):
     url: str
@@ -11,12 +12,13 @@ class ScanResultResponse(BaseModel):
     verdict: str
     risk_score: float
     created_at: datetime
+    details: Optional[str] = None
 
     class Config:
         from_attributes = True
-        
+
 class IPScanRequest(BaseModel):
-        ip: str
+    ip: str
 
 class DomainScanRequest(BaseModel):
-        domain: str
+    domain: str

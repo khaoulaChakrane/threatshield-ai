@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import ScanDetailModal from "../components/ScanDetailModal";
 import { getHistory } from "../services/api";
 
 export default function History() {
   const [scans, setScans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedScan, setSelectedScan] = useState(null);
 
   const [typeFilter, setTypeFilter] = useState("all");
   const [verdictFilter, setVerdictFilter] = useState("all");
@@ -40,7 +42,7 @@ export default function History() {
     <Layout>
       <div className="page-title">Historique</div>
       <div className="page-subtitle">
-        {filtered.length} résultat{filtered.length !== 1 ? "s" : ""} sur {scans.length} scans
+        {filtered.length} résultat{filtered.length !== 1 ? "s" : ""} sur {scans.length} scans · clique sur une ligne pour voir le détail
       </div>
 
       {error && <div className="auth-error">{error}</div>}
@@ -85,7 +87,11 @@ export default function History() {
           </thead>
           <tbody>
             {filtered.map((scan) => (
-              <tr key={scan.id}>
+              <tr
+                key={scan.id}
+                className="clickable-row"
+                onClick={() => setSelectedScan(scan)}
+              >
                 <td>{scan.scan_type.toUpperCase()}</td>
                 <td className="cell-target">{scan.target}</td>
                 <td>
@@ -115,6 +121,10 @@ export default function History() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {selectedScan && (
+        <ScanDetailModal scan={selectedScan} onClose={() => setSelectedScan(null)} />
       )}
     </Layout>
   );

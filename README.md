@@ -51,6 +51,18 @@ cd frontend
 npm install
 npm run dev
 ```
+## Installation avec Docker (recommandé)
+
+\`\`\`bash
+git clone https://github.com/khaoulaChakrane/threatshield-ai.git
+cd threatshield-ai
+# Crée backend/.env.docker avec tes clés API (voir .env.example)
+docker compose up --build
+\`\`\`
+
+Accès :
+- Frontend : http://localhost:5173
+- Backend Swagger : http://localhost:8001/docs
 
 ### Documentation API
 Swagger disponible sur : http://localhost:8001/docs

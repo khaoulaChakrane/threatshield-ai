@@ -53,5 +53,9 @@ export async function scanEmail(file) {
   return res.data;
 }
 
+export async function getScanDetail(id) {
+  const res = await api.get(`/history/${id}`);
+  return res.data;
+}
  
 export default api;
