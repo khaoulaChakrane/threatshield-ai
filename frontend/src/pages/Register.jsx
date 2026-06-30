@@ -20,8 +20,9 @@ export default function Register() {
       setSuccess(true);
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
+      console.log("Register error:", err.response?.status, err.response?.data);
       if (err.response?.status === 400) {
-        setError("Cet email est déjà utilisé");
+        setError(err.response?.data?.detail || "Cet email est déjà utilisé");
       } else {
         setError("Une erreur est survenue, réessaie");
       }

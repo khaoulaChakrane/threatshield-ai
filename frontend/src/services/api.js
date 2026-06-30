@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8001/api",
+  baseURL: "http://localhost:8002/api",
 });
 
 // Ajoute automatiquement le token JWT à chaque requête
@@ -57,5 +57,10 @@ export async function getScanDetail(id) {
   const res = await api.get(`/history/${id}`);
   return res.data;
 }
- 
+
+export async function predictML(url) {
+  const res = await api.post("/ml/predict", { url });
+  return res.data;
+}
+
 export default api;

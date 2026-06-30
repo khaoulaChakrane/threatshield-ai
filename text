@@ -98,121 +98,70 @@ git push
 
 
 
-*************************************************************
-1. La Protection des Données au Repos (Data at Rest)
-Ce qu'il faut réviser :
-Pourquoi protéger ? Pour éviter la divulgation d'informations, garantir l'intégrité des données, et empêcher la suppression accidentelle ou malveillante (image_e0cab7.png). C'est une couche de défense en profondeur essentielle si le système est compromis (image_e0cab7.png).
-
-Par défaut sur S3 : Les données stockées dans Amazon S3 sont privées par défaut et nécessitent des identifiants AWS pour y accéder (Screenshot from 2026-06-13 13-09-09.png, image_e0c67c.png).
-
-Mécanismes de contrôle d'accès : S3 s'appuie sur deux types de contrôle (image_e0c67c.png) :
-
-Identity-based (IAM users/roles).
-
-Resource-based (Bucket Policies, ACLs).
-
-💡 Le réflexe en entretien :
-Si on vous demande "Comment sécurisez-vous un bucket S3 contenant des données sensibles ?", ne dites pas juste "Je l'encrypte". Répondez en combinant le principe du moindre privilège (via les Bucket Policies pour un contrôle granulaire) et le chiffrement systématique (Screenshot from 2026-06-13 13-09-09.png).
-**
-
-
-2. Stratégies de Chiffrement : Client-Side vs Server-Side
-C'est une question classique d'entretien pour tester votre compréhension de la gestion des clés de chiffrement.
-
-
-Concept,Client-Side Encryption (CSE),Server-Side Encryption (SSE)
-Principe,"L'application chiffre la donnée avant de l'envoyer à AWS (image_e0c25a.png, image_e05d20.png).","AWS chiffre la donnée pour vous après réception (image_e0c25a.png, image_e05d20.png)."
-Visibilité,Le processus est géré de votre côté ; les clés et algorithmes ne sont connus que de vous (image_e0c25a.png).,Le processus est totalement transparent pour l'utilisateur (image_e0c25a.png).
-***
-Les 3 types de SSE à connaître absolument (image_e05d20.png) :
-SSE-C : Chiffrement avec des clés fournies par le client.
-
-SSE-S3 : Chiffrement avec des clés gérées entièrement par Amazon S3.
-
-SSE-KMS : Chiffrement utilisant AWS KMS (Key Management Service), qui offre un contrôle strict et un audit sur l'utilisation des clés (image_e05d20.png).
-
-💡 Le réflexe en entretien :
-On vous demandera souvent : "Dans quel cas utilisez-vous le CSE plutôt que le SSE ?".
-
-Réponse : "Le CSE est indispensable lorsque des contraintes réglementaires ou de conformité strictes interdisent formellement à un tiers (même un fournisseur cloud comme AWS) d'avoir la moindre visibilité ou possession des clés de chiffrement."
-**
-3. Sécurité Avancée de S3 (Gouvernance et Anti-Ransomware)
-Les recruteurs adorent poser des scénarios de type : "Un administrateur s'est fait pirater son compte et le hacker veut supprimer toutes nos sauvegardes S3. Comment l'en empêcher ?"
-
-S3 Block Public Access : Une sécurité globale indispensable qui comporte 4 options clés pour bloquer les accès publics accordés via de nouvelles/anciennes ACLs ou Bucket Policies (image_e0c600.png).
-
-S3 Versioning : Crée une nouvelle version à chaque upload et protège contre les suppressions accidentelles (Screenshot from 2026-06-13 13-12-23.png). Une fois activé, il ne peut pas être désactivé (uniquement suspendu) (Screenshot from 2026-06-13 13-12-23.png).
-
-Option choc pour l'entretien : Mentionnez l'activation de l'MFA Delete (exiger une authentification multifacteur pour valider une suppression définitive) (Screenshot from 2026-06-13 13-12-23.png).
-
-S3 Object Lock (Modèle WORM) : Write Once, Read Many. Empêche la suppression ou la modification d'un objet pendant une période définie (Screenshot from 2026-06-13 13-13-58.png). Fonctionne uniquement si le Versioning est activé (Screenshot from 2026-06-13 13-13-58.png). Il existe deux modes (Screenshot from 2026-06-13 13-13-58.png) :
-
-Governance mode : Certains utilisateurs privilégiés (avec des permissions spécifiques) peuvent passer outre la protection.
-
-Compliance mode : Personne, pas même l'utilisateur racine (root account), ne peut supprimer l'objet avant la fin de la période de rétention. C'est l'arme absolue contre les ransomwares.
-****
-4. La Protection des Données en Transit (Data in Transit)
-Ce qu'il faut réviser :
-Protocoles : Utilisation systématique de points de terminaison SSL/TLS (HTTPS) (Screenshot from 2026-06-13 13-23-23.png, Screenshot from 2026-06-13 13-24-57.png).
-
-VPC Endpoints : Pour éviter que le flux de données ne transite par l'Internet public. Les VPC Endpoints permettent de limiter et de sécuriser l'accès à vos buckets S3 directement depuis votre réseau privé AWS (Screenshot from 2026-06-13 13-23-23.png, Screenshot from 2026-06-13 13-24-57.png).
-
-Gestion des Certificats :
-
-ACM (AWS Certificate Manager) : Gère la création, le déploiement et le renouvellement automatique des certificats SSL/TLS publics pour les applications web (Screenshot from 2026-06-13 13-24-57.png).
-
-ACM Private CA : Permet de gérer centralement le cycle de vie de vos certificats privés de manière hautement disponible pour l'architecture interne (Screenshot from 2026-06-13 13-24-57.png).
-
-💡 Le réflexe en entretien :
-Montrez que vous maîtrisez la sécurité réseau : "Pour garantir qu'aucune donnée ne sorte sur Internet lors des échanges entre mes instances EC2 et mon bucket S3, je déploie un VPC Gateway Endpoint et j'applique une policy qui rejette toute requête n'émanant pas de ce endpoint spécifique."
-*********************************
-1. La distinction fondamentale (Le "Qui" vs le "Comment")
-C'est la question piège classique en entretien : « Quelle est la différence entre CloudTrail et CloudWatch ? » Vous devez y répondre avec une formule percutante :
-
-AWS CloudTrail (La traçabilité / Audit) : Répond aux questions Qui a fait Quoi, Quand et depuis Où. Il enregistre toutes les actions des utilisateurs, des rôles et des services sous forme d'événements (appels d'API). C'est l'outil indispensable pour la gouvernance, la conformité et l'analyse post-incident (forensics).
-
-Amazon CloudWatch (L'observabilité / Performance) : Mesure la performance et la santé opérationnelle des ressources et des applications. Il collecte des métriques, supervise les journaux d'application et déclenche des alertes (Alarms) en cas de comportement anormal.
-**************
-2. Savoir lire et analyser un Log (Aptitude Technique)
-Un recruteur peut vous montrer un extrait de log JSON (comme dans vos captures) et vous demander de l'interpréter. Vous devez savoir repérer immédiatement les blocs clés :
-
-L'identité de l'appelant (userIdentity) : Repérez le type (ex: IAMUser), l'ARN (arn:aws:iam::...), et le userName (ex: "Jane"). Cela montre que vous savez identifier précisément l'acteur.
-
-L'action et l'impact (requestParameters et responseElements) :
-
-Dans Screenshot from 2026-06-13 14-32-37.png, on voit une requête ciblant une instance EC2 spécifique (instanceId: "i-ebeaf9e2").
-
-La réponse montre un changement d'état : previousState était running et le currentState devient stopping.
-
-En entretien : Vous devez être capable de dire : « Ce log montre que l'utilisateur Jane a volontairement (ou par erreur) arrêté l'instance EC2 spécifiée à un instant T. »
-**********
-3. Les Logs natifs par composants (Cas d'usage)
-Montrez que vous connaissez les sources de données spécifiques selon le périmètre de sécurité concerné :
-
-Réseau (Amazon VPC Flow Logs) : Capture le trafic IP entrant et sortant au niveau des interfaces réseau, des subnets ou du VPC complet. Argument fort : Précisez que ces logs sont collectés en dehors du chemin réseau classique, ce qui signifie qu'ils n'ont aucun impact sur la latence ou le débit de l'infrastructure.
-
-Stockage (Amazon S3 Server Access Logs) : Fournit des enregistrements détaillés de toutes les requêtes d'accès aux buckets S3. Essentiel pour auditer les fuites de données ou comprendre l'évolution de la facturation S3.
-
-Application / Distribution (ELB Access Logs) : Enregistre en détail les requêtes envoyées aux Load Balancers. Utile pour analyser les schémas de trafic (Traffic patterns) et diagnostiquer des erreurs applicatives (ex: erreurs 5xx). Les logs y sont compressés et stockés directement dans S3.
-
-4. L'écosystème global de Supervision
-Si on vous demande comment mettre en place une stratégie de monitoring complète pour anticiper les pannes ou les attaques, vous devez structurer votre réponse autour de ces 4 piliers AWS :
-
-CloudTrail pour l'audit des actions de l'infrastructure.
-
-CloudWatch pour le suivi des métriques de performance et des seuils d'alerte.
-
-Amazon EventBridge pour orchestrer des réponses automatiques aux événements (ex: isoler automatiquement une instance compromise).
-
-AWS X-Ray pour le traçage des requêtes de bout en bout dans les architectures distribuées ou micro-services afin d'identifier les goulets d'étranglement.
-
-💡 Conseils pour l'entretien :
-Parlez en termes de "Postures de Sécurité" : Ne dites pas juste "je regarde les logs". Dites : "J'utilise les logs de manière proactive pour détecter les comportements anomaux avant qu'ils n'impactent la production, et de manière réactive pour mener des investigations numériques (forensics)."
-
-Centralisation : Mentionnez toujours que la bonne pratique consiste à centraliser tous ces logs (VPC, ELB, S3, CloudTrail) dans un bucket S3 sécurisé et dédié (souvent dans un compte AWS de sécurité distinct), pour éviter qu'un attaquant ayant compromis un serveur puisse effacer ses traces.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cd backend
+cat > .env.docker << 'EOF'
+DATABASE_URL=postgresql://khawla:password123@db:5432/threatshield_db
+SECRET_KEY=une-cle-tres-longue-et-secrete-changez-moi-en-prod-2026
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+VIRUSTOTAL_API_KEY=6d122841de11196d332478f509dd73dff471300df9aa229103d33aecc03be57f
+ABUSEIPDB_API_KEY=d13f0647a0efdd5d9412b0a15abe6e3e9ab4cf2d1453a6ea6db1cbf735769deff95c3c78714c7ec7
+EOF
+---------------------------------------------------------ThreatShield vs VirusTotal — en quoi c'est différent ?
+Tu as raison que VirusTotal fait déjà tout ça. Mais ThreatShield n'est pas un concurrent de VirusTotal — c'est une plateforme qui consomme VirusTotal (et d'autres APIs) pour créer quelque chose de différent :
+
+TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzgyNTg5MjI3fQ.qkPg1cgr90smqt5AMlaC_cdJNliciHBN5u5nxSKmsk4"
+curl -X POST http://localhost:8002/api/ml/predict \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"url": "http://paypa1-secure-verify.xyz/login"}'
+http://paypa1-secure-verify.xyz/login
+-------------------------------------------------------------
+Logistic Regression → trop simple, ne capte pas les interactions entre features
+                      "url_length > 30 ET tld_suspicious = 1" ensemble
+
+Neural Network      → besoin de 100 000+ exemples pour bien apprendre
+                      on n'a que 10 000 URLs → risque d'overfitting
+
+SVM                 → lent en production, difficile à expliquer
+                      "pourquoi cette URL est malveillante ?" → impossible
+
+XGBoost             → meilleur que Random Forest en précision
+                      mais plus complexe à configurer et expliquer
+
+Random Forest ✓     → robuste avec 10 000 exemples
+                      rapide en production (< 1ms par prédiction)
+                      explique ses décisions via feature importance
+                      résistant au bruit dans les données
+                      -----------------------------------------------------------
+                                    
+Ce que tu dis à un recruteur
+"J'ai implémenté un module de détection ML basé sur Random Forest entraîné sur 10 000 URLs réelles (URLhaus + Tranco). Le modèle extrait 17 features structurelles de chaque URL — entropie du domaine, TLD suspect, présence de mots-clés de phishing, ratio de longueur — et prédit la probabilité de malveillance en moins d'une milliseconde. Le choix de Random Forest était délibéré : robuste sur des datasets moyens, interprétable via feature importance, et résistant au surapprentissage. Les résultats montrent sa valeur complémentaire à VirusTotal : il détecte des domaines frais jamais signalés en se basant uniquement sur leur structure."
 
 
 

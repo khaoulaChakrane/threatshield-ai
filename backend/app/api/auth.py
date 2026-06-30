@@ -9,10 +9,15 @@ router = APIRouter(prefix="/api/auth", tags=["Authentification"])
 
 @router.post("/register", response_model=UserResponse)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    # Vérifie si email déjà utilisé
-    existing = db.query(User).filter(User.email == user_data.email).first()
-    if existing:
+    # Vérifie email
+    existing_email = db.query(User).filter(User.email == user_data.email).first()
+    if existing_email:
         raise HTTPException(status_code=400, detail="Email déjà utilisé")
+
+    # Vérifie username
+    existing_username = db.query(User).filter(User.username == user_data.username).first()
+    if existing_username:
+        raise HTTPException(status_code=400, detail="Nom d'utilisateur déjà pris")
 
     user = User(
         username=user_data.username,
