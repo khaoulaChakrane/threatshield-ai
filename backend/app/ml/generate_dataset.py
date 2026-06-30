@@ -96,9 +96,9 @@ def generate_csv(output_path, count=5000):
         for url in benign:
             writer.writerow([url, 0])
 
-    print(f"✅ Dataset généré : {len(phishing) + len(benign)} URLs")
-    print(f"   Phishing : {len(phishing)}")
-    print(f"   Bénignes : {len(benign)}")
+    print(f"Dataset généré : {len(phishing) + len(benign)} URLs")
+    print(f"Phishing : {len(phishing)}")
+    print(f"Bénignes : {len(benign)}")
 
 if __name__ == "__main__":
     output = os.path.join(os.path.dirname(__file__), "phishing_dataset.csv")
