@@ -16,3 +16,6 @@ build/
 .vscode/
 .idea/
 backend/.env.docker
+*.env
+.env.*
+!.env.example
