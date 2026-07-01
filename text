@@ -97,6 +97,10 @@ git commit -m "add scan ip"
 git push
 
 
+sudo systemctl start postgresql
+uvicorn app.main:app --reload --port 8002
+
+
 
 
 
@@ -162,6 +166,16 @@ Random Forest ✓     → robuste avec 10 000 exemples
                                     
 Ce que tu dis à un recruteur
 "J'ai implémenté un module de détection ML basé sur Random Forest entraîné sur 10 000 URLs réelles (URLhaus + Tranco). Le modèle extrait 17 features structurelles de chaque URL — entropie du domaine, TLD suspect, présence de mots-clés de phishing, ratio de longueur — et prédit la probabilité de malveillance en moins d'une milliseconde. Le choix de Random Forest était délibéré : robuste sur des datasets moyens, interprétable via feature importance, et résistant au surapprentissage. Les résultats montrent sa valeur complémentaire à VirusTotal : il détecte des domaines frais jamais signalés en se basant uniquement sur leur structure."
+
+
+
+
+
+
+cd ~/threatshield-ai
+git add .
+git commit -m "fix: ML model"
+git push
 
 
 
